@@ -30,7 +30,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   data_for_breakfast_Minn:
     staging:
-      +materialized: views
+      +materialized: view
     intermediate:
       +materialized: ephemeral
     marts:
