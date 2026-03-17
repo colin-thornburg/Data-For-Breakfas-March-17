@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_march_madness__games
+    description: "Staging model for NCAA March Madness games loaded from the march_madness_games seed."
+    columns:
+      - name: game_id
+        description: "Surrogate key for a game (year + round + teams)."
+        tests:
+          - not_null
+          - unique
+
+      - name: year
+        description: "Tournament year."
+
+      - name: round_of
+        description: "Round size for the game (e.g. 64, 32, 16)."
+
+      - name: round_name
+        description: "Human-readable round name derived from round_of."
+
+      - name: winning_team_name
+        description: "Name of the winning team."
+
+      - name: winning_team_seed
+        description: "Seed of the winning team (lower is better)."
+
+      - name: winning_team_score
+        description: "Score of the winning team."
+
+      - name: losing_team_name
+        description: "Name of the losing team."
+
+      - name: losing_team_seed
+        description: "Seed of the losing team (lower is better)."
+
+      - name: losing_team_score
+        description: "Score of the losing team."
+
+      - name: point_differential
+        description: "Winning team score minus losing team score."
+
+      - name: is_upset
+        description: "True when the losing team had a better (lower) seed than the winning team."
+
+      - name: seed_differential
+        description: "Losing seed minus winning seed (positive means the winner was favored)."
