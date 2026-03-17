@@ -1,76 +1,4 @@
-## Pre-Demo Setup Clickpath
 
-### 1. Verify dbt project and profiles
-
-```bash
-cd ~/Data-For-Breakfast-March-17
-dbt debug
-```
-
-### 2. Ensure packages are installed
-
-`packages.yml` contents:
-
-```yaml
-packages:
-  - package: Snowflake-Labs/dbt_semantic_view
-    version: 1.0.3
-  - package: dbt-labs/dbt_utils
-    version: 1.3.0
-```
-
-Install packages:
-
-```bash
-cd ~/Data-For-Breakfast-March-17
-dbt deps
-```
-
-### 3. Prepare the seed file
-
-Copy CSV into `seeds/`:
-
-```bash
-Verify seed file exists
-```
-
-Clean the CSV (remove blank team names):
-
-```bash
-Optional
-cd ~/Data-For-Breakfast-March-17
-awk -F',' 'NR==1 || ($3 != "" && $6 != "")' seeds/march_madness_games.csv > seeds/tmp.csv && mv seeds/tmp.csv seeds/march_madness_games.csv
-```
-
-### 4. Install dbt agent skills in Claude Code
-
-Launch Claude Code from the project directory:
-
-```bash
-cd ~/Data-For-Breakfast-March-17
-claude --dangerously-skip-permissions
-```
-
-In Claude Code, run (one at a time):
-
-```text
-/plugin marketplace add dbt-labs/dbt-agent-skills
-```
-
-```text
-/skills
-```
-
-Then restart Claude Code so skills are loaded:
-
-```text
-/quit
-```
-
-```bash
-cd ~/Data-For-Breakfast-March-17
-claude
-```
 
 ---
 
@@ -134,9 +62,6 @@ team-grain — each game produces TWO rows, one per team. Columns:
 game_id, tournament_year, round_of, round_name, team_name, team_seed,
 team_score, opponent_name, opponent_seed, opponent_score, is_winner,
 point_differential (positive=won, negative=lost), is_upset, is_underdog.
-
-Include schema.yml with descriptions and tests. Build and verify — show me
-rows where team_name = 'Indiana'.
 ```
 
 ---
@@ -146,8 +71,11 @@ rows where team_name = 'Indiana'.
 **Prompt to paste into Claude Code:**
 
 ```text
-I need to create a Snowflake Semantic View. Do NOT use any dbt semantic layer
-skill — this is Snowflake-native DDL, not MetricFlow. Do use the custom skill in the skills/dbt-semantic-view/SKILL.md file.
+Create a new model in models/marts/ called sv_team_tournament_games.sql that is materialized as a Snowflake Semantic View using the Snowflake-Labs/dbt_semantic_view package materialization (materialized='semantic_view').
+We are running on dbt Fusion, so set static_analysis='off' in the model config.
+The Semantic View should reference {{ ref('fct_team_tournament_games') }} in a TABLES(...) block using alias-first syntax: team_games AS {{ ref('fct_team_tournament_games') }}.
+Include a DIMENSIONS (...) block so the semantic view is queryable, defining dimensions for: game_id, tournament_year, round_of, round_name, team_name, team_seed, team_score, opponent_name, opponent_seed, opponent_score, is_winner, point_differential, is_upset, is_underdog.
+Then run dbt build --select sv_team_tournament_games to verify it deploys.
 ```
 
 (The agent will write the semantic view macro and run `dbt run-operation create_semantic_view`.)
